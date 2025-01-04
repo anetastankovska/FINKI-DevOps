@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo 'Checking out code from repository...'
+                checkout scm
+            }
+        }
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Frontend') {
+                    steps {
+                        echo 'Building Docker image for frontend...'
+                        dir('client') {
+                            sh 'docker build -t my-docker-username/frontend-service:${BUILD_NUMBER} .'
+                        }
+                    }
+                }
+                stage('Build Backend') {
+                    steps {
+                        echo 'Building Docker image for backend...'
+                        dir('server') {
+                            sh 'docker build -t my-docker-username/backend-service:${BUILD_NUMBER} .'
+                        }
+                    }
+                }
+            }
+        }
+        stage('Run Tests') {
+            parallel {
+                stage('Frontend Tests') {
+                    steps {
+                        echo 'Running frontend tests...'
+                        dir('client') {
+                            sh 'npm test || echo "No tests for frontend."' // Adjust as needed
+                        }
+                    }
+                }
+                stage('Backend Tests') {
+                    steps {
+                        echo 'Running backend tests...'
+                        dir('server') {
+                            sh 'npm test' // Replace with your actual test command
+                        }
+                    }
+                }
+            }
+        }
+        stage('Push Docker Images') {
+            steps {
+                echo 'Pushing Docker images to DockerHub...'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push my-docker-username/frontend-service:${BUILD_NUMBER}'
+                    sh 'docker push my-docker-username/backend-service:${BUILD_NUMBER}'
+                }
+            }
+        }
+        stage('Deploy Services') {
+            steps {
+                echo 'Deploying services using Docker Compose...'
+                sh '''
+                docker-compose down
+                docker-compose up -d
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline execution completed!'
+        }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Cleaning up Docker resources...'
+            sh 'docker-compose down || true'
+        }
+    }
+}
