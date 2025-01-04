@@ -3,9 +3,12 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Checking out code from repository...'
-                checkout scm
-            }
+              echo 'Checking out code from repository...'
+              checkout scm
+              dir('Homework_2') {
+                  echo 'Switching to Homework_2 directory...'
+              }
+    }
         }
         stage('Build Docker Images') {
             parallel {
