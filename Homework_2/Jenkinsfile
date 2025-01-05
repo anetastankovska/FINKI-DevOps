@@ -44,7 +44,6 @@ pipeline {
                 }
             }
         }
-    }
         stage('Push Docker Images') {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
@@ -59,11 +58,10 @@ pipeline {
         }
         stage('Deploy Services') {
             steps {
-                echo 'Deploying services using Docker Compose...'
-                sh '''
-                docker-compose down
-                docker-compose up -d
-                '''
+                dir('Homework_2') {
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
@@ -76,10 +74,12 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed. Attempting cleanup...'
-            sh '''
-            docker-compose ps || true
-            docker-compose down || true
-            '''
+            dir('Homework_2') {
+                sh '''
+                docker-compose ps || true
+                docker-compose down || true
+                '''
+            }
         }
     }
 }
