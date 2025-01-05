@@ -11,7 +11,7 @@ pipeline {
                 stage('Build Frontend') {
                     steps {
                         echo 'Building Docker image for frontend...'
-                        dir('client') {
+                        dir('Homework_2/client') {
                             sh 'docker build -t my-docker-username/frontend-service:${BUILD_NUMBER} .'
                         }
                     }
@@ -19,7 +19,7 @@ pipeline {
                 stage('Build Backend') {
                     steps {
                         echo 'Building Docker image for backend...'
-                        dir('server') {
+                        dir('Homework_2/server') {
                             sh 'docker build -t my-docker-username/backend-service:${BUILD_NUMBER} .'
                         }
                     }
@@ -30,22 +30,21 @@ pipeline {
             parallel {
                 stage('Frontend Tests') {
                     steps {
-                        echo 'Running frontend tests...'
-                        dir('client') {
+                        dir('Homework_2/client') {
                             sh 'npm test || echo "No tests for frontend."'
                         }
                     }
                 }
                 stage('Backend Tests') {
                     steps {
-                        echo 'Running backend tests...'
-                        dir('server') {
+                        dir('Homework_2/server') {
                             sh 'npm test || echo "No tests for backend."'
                         }
                     }
                 }
             }
         }
+    }
         stage('Push Docker Images') {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
