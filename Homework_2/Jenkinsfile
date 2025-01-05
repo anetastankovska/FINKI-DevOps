@@ -7,6 +7,7 @@ pipeline {
                 url: 'https://github.com/anetastankovska/FINKI-DevOps.git'
               dir('Homework_2') {
                 sh 'pwd'
+                sh 'docker --version'
                 sh 'ls -la'
         }
     }
