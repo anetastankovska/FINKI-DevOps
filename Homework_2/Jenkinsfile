@@ -8,6 +8,7 @@ pipeline {
               dir('Homework_2') {
                 sh 'pwd'
                 sh 'docker --version'
+                sh 'docker-compose --version'
                 sh 'ls -la'
         }
     }
