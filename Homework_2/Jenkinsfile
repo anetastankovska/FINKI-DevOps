@@ -3,8 +3,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Checking out code from repository...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/anetastankovska/FINKI-DevOps.git'
             }
         }
         stage('Build Docker Images') {
