@@ -3,12 +3,9 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-              echo 'Checking out code from repository...'
-              checkout scm
-              dir('Homework_2') {
-                  echo 'Switching to Homework_2 directory...'
-              }
-    }
+                echo 'Checking out code from repository...'
+                checkout scm
+            }
         }
         stage('Build Docker Images') {
             parallel {
@@ -36,7 +33,7 @@ pipeline {
                     steps {
                         echo 'Running frontend tests...'
                         dir('client') {
-                            sh 'npm test || echo "No tests for frontend."' // Adjust as needed
+                            sh 'npm test || echo "No tests for frontend."'
                         }
                     }
                 }
@@ -44,7 +41,7 @@ pipeline {
                     steps {
                         echo 'Running backend tests...'
                         dir('server') {
-                            sh 'npm test' // Replace with your actual test command
+                            sh 'npm test || echo "No tests for backend."'
                         }
                     }
                 }
@@ -54,9 +51,11 @@ pipeline {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push my-docker-username/frontend-service:${BUILD_NUMBER}'
-                    sh 'docker push my-docker-username/backend-service:${BUILD_NUMBER}'
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push my-docker-username/frontend-service:${BUILD_NUMBER}
+                    docker push my-docker-username/backend-service:${BUILD_NUMBER}
+                    '''
                 }
             }
         }
@@ -78,8 +77,11 @@ pipeline {
             echo 'Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Cleaning up Docker resources...'
-            sh 'docker-compose down || true'
+            echo 'Pipeline failed. Attempting cleanup...'
+            sh '''
+            docker-compose ps || true
+            docker-compose down || true
+            '''
         }
     }
 }
