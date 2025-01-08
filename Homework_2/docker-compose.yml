@@ -37,6 +37,7 @@ services:
       - app-network
     depends_on:
       - backend
+    restart: always
 
   backend:
     build:
