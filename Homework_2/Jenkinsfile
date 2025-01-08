@@ -65,16 +65,14 @@ pipeline {
             parallel {
                 stage('Frontend Tests') {
                     steps {
-                        dir('Homework_2/client') {
-                            sh 'npm test || echo "No tests for frontend."'
-                        }
+                        echo 'Running frontend tests inside Docker container...'
+                        sh 'docker run --rm my-docker-username/frontend-service:${BUILD_NUMBER} npm test || echo "No tests for frontend."'
                     }
                 }
                 stage('Backend Tests') {
                     steps {
-                        dir('Homework_2/server') {
-                            sh 'npm test || echo "No tests for backend."'
-                        }
+                        echo 'Running backend tests inside Docker container...'
+                        sh 'docker run --rm my-docker-username/backend-service:${BUILD_NUMBER} npm test || echo "No tests for backend."'
                     }
                 }
             }
