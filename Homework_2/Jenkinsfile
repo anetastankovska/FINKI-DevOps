@@ -82,7 +82,10 @@ pipeline {
                 echo 'Pushing Docker images to DockerHub...'
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
+                    # Use the username and password from Jenkins credentials
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    
+                    # Push Docker images
                     docker push anetastankovska/frontend-service:${BUILD_NUMBER}
                     docker push anetastankovska/backend-service:${BUILD_NUMBER}
                     '''
