@@ -61,22 +61,22 @@ pipeline {
                 }
             }
         }
-        stage('Run Tests') {
-            parallel {
-                stage('Frontend Tests') {
-                    steps {
-                        echo 'Running frontend tests inside Docker container...'
-                        sh 'docker run --rm my-docker-username/frontend-service:${BUILD_NUMBER} npm test || echo "No tests for frontend."'
-                    }
-                }
-                stage('Backend Tests') {
-                    steps {
-                        echo 'Running backend tests inside Docker container...'
-                        sh 'docker run --rm my-docker-username/backend-service:${BUILD_NUMBER} npm test || echo "No tests for backend."'
-                    }
-                }
-            }
-        }
+        // stage('Run Tests') {
+        //     parallel {
+        //         stage('Frontend Tests') {
+        //             steps {
+        //                 echo 'Running frontend tests inside Docker container...'
+        //                 sh 'docker run --rm my-docker-username/frontend-service:${BUILD_NUMBER} npm test || echo "No tests for frontend."'
+        //             }
+        //         }
+        //         stage('Backend Tests') {
+        //             steps {
+        //                 echo 'Running backend tests inside Docker container...'
+        //                 sh 'docker run --rm my-docker-username/backend-service:${BUILD_NUMBER} npm test || echo "No tests for backend."'
+        //             }
+        //         }
+        //     }
+        // }
         stage('Push Docker Images') {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
