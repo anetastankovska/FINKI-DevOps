@@ -47,7 +47,7 @@ pipeline {
                     steps {
                         echo 'Building Docker image for frontend...'
                         dir('Homework_2/client') {
-                            sh 'docker build -t my-docker-username/frontend-service:${BUILD_NUMBER} .'
+                            sh 'docker build -t anetastankovska/frontend-service:${BUILD_NUMBER} .'
                         }
                     }
                 }
@@ -55,36 +55,36 @@ pipeline {
                     steps {
                         echo 'Building Docker image for backend...'
                         dir('Homework_2/server') {
-                            sh 'docker build -t my-docker-username/backend-service:${BUILD_NUMBER} .'
+                            sh 'docker build -t anetastankovska/backend-service:${BUILD_NUMBER} .'
                         }
                     }
                 }
             }
         }
-        // stage('Run Tests') {
-        //     parallel {
-        //         stage('Frontend Tests') {
-        //             steps {
-        //                 echo 'Running frontend tests inside Docker container...'
-        //                 sh 'docker run --rm my-docker-username/frontend-service:${BUILD_NUMBER} npm test || echo "No tests for frontend."'
-        //             }
-        //         }
-        //         stage('Backend Tests') {
-        //             steps {
-        //                 echo 'Running backend tests inside Docker container...'
-        //                 sh 'docker run --rm my-docker-username/backend-service:${BUILD_NUMBER} npm test || echo "No tests for backend."'
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Run Tests') {
+            parallel {
+                stage('Frontend Tests') {
+                    steps {
+                        echo 'Running frontend tests inside Docker container...'
+                        sh 'docker run --rm anetastankovska/frontend-service:${BUILD_NUMBER} npm test || echo "No tests for frontend."'
+                    }
+                }
+                stage('Backend Tests') {
+                    steps {
+                        echo 'Running backend tests inside Docker container...'
+                        sh 'docker run --rm anetastankovska/backend-service:${BUILD_NUMBER} npm test || echo "No tests for backend."'
+                    }
+                }
+            }
+        }
         stage('Push Docker Images') {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push my-docker-username/frontend-service:${BUILD_NUMBER}
-                    docker push my-docker-username/backend-service:${BUILD_NUMBER}
+                    docker push anetastankovska/frontend-service:${BUILD_NUMBER}
+                    docker push anetastankovska/backend-service:${BUILD_NUMBER}
                     '''
                 }
             }
