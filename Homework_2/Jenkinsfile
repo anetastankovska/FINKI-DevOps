@@ -77,6 +77,30 @@ pipeline {
         //         }
         //     }
         // }
+
+        stage('Debug Credentials') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "DOCKER_USER: $DOCKER_USER"
+                    echo "DOCKER_PASS is set" # Avoid printing the actual password
+                    '''
+                }
+            }
+        }
+
+        stage('Push Docker Images DEBUG') {
+            steps {
+                echo 'Debug Docker images to DockerHub...'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    export DOCKER_CONFIG=/root/.docker
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push anetastankovska/frontend-service:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
         stage('Push Docker Images') {
             steps {
                 echo 'Pushing Docker images to DockerHub...'
@@ -86,7 +110,7 @@ pipeline {
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     
                     # Push Docker images
-                    docker push anetastankovska/frontend-service:${BUILD_NUMBER}
+                    docker push --debug anetastankovska/frontend-service:${BUILD_NUMBER}
                     docker push anetastankovska/backend-service:${BUILD_NUMBER}
                     '''
                 }
